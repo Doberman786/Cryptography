@@ -1,4 +1,5 @@
 # Import Tkinter and other libraries
+import binascii
 import os
 import time
 import math
@@ -101,8 +102,9 @@ def selectFile():
         ('txt', '*.txt'),
         ('pdf', '*.pdf'),
         ('docx', '*.docx'),
-        ('jpeg', '*.jpeg'),
+        ('pptx', '*.pptx'),
         ('jpg', '*.jpg'),
+        ('jpeg', '*.jpeg'),
         ('png', '*.png'),
         ('bmp', '*.bmp'),
         ('All Files', '*.*')
@@ -270,9 +272,9 @@ def sign():
 
         # Encrypt the file + hash and save as copy
         try:
-            binary = fileToSign.read()
-            hashFile = hashFunction(binary)
-            copyOfFile.write(binary)
+            hashOfFile = fileToSign.read()
+            hashFile = hashFunction(hashOfFile)
+            copyOfFile.write(hashOfFile)
             cipher = encryptRSA(str(hashFile))
         finally:
             zipFile.write("copy-of-original-file" + typeOfFile)
@@ -316,6 +318,12 @@ def verification():
                 except UnicodeDecodeError:
                     messagebox.showerror("Error", "File verification error")
                     break
+                except binascii.Error:
+                    messagebox.showerror("Error", "File verification error")
+                    break
+                except ValueError:
+                    messagebox.showerror("Error", "File verification error")
+                    break
                 finally:
                     signedFile.read()
 
@@ -323,18 +331,18 @@ def verification():
             elif signExtension not in file:
                 copyOfFile = zipFile.open(file, 'r')
                 try:
-                    binary = copyOfFile.read()
-                    hash1 = hashFunction(binary)
+                    hashOfFile2 = copyOfFile.read()
+                    hash1 = hashFunction(hashOfFile2)
                 finally:
                     copyOfFile.read()
             else:
                 messagebox.showerror("Error", "The file with the extension .sign was not found")
                 break
-
-        if hash1 == hash2:
-            messagebox.showinfo("Success", "Zip file was verified successfully")
-        else:
-            messagebox.showerror("Error", "File verification error")
+        try:
+            if hash1 == hash2:
+                messagebox.showinfo("Success", "Zip file was verified successfully")
+        except NameError:
+            messagebox.showerror("Error", "Necessary files was not found")
     finally:
         zipFile.close()
 
