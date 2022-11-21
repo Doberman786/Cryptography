@@ -1,5 +1,4 @@
 # Import Tkinter and other libraries
-import binascii
 import os
 import time
 import math
@@ -7,6 +6,7 @@ import sympy
 import base64
 import random
 import hashlib
+import binascii
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
