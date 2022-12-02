@@ -27,6 +27,23 @@ style.configure("TLabel", font="Serif 15", padding=10)
 style.configure("TButton", font="Serif 15", padding=10)
 ########################################################################################################################
 
+# Function for encoding keys into base64
+def encodeKeys(arg):
+    key = arg.encode('utf-8')
+    base64Bytes = base64.b64encode(key)
+    base64Keys = base64Bytes.decode('utf-8')
+
+    return base64Keys
+
+
+# Function for decoding keys into base64
+def decodeKeys(arg):
+    base64Bytes = arg.encode('utf-8')
+    keysBytes = base64.b64decode(base64Bytes)
+    key = keysBytes.decode('utf-8')
+
+    return key
+
 
 # Function for generating keys
 def generateKeys():
@@ -52,18 +69,19 @@ def generateKeys():
     fn = (p - 1) * (q - 1)
     d = pow(e, -1, fn)
 
+
     # Displaying the keys selection windows
     # Module
     open(fd.asksaveasfilename(initialdir="/", defaultextension=".txt", title="Save the module"), "w") \
-        .write(str(n))
+        .write(encodeKeys(str(n)))
 
     # Public key
     open(fd.asksaveasfilename(initialdir="/", defaultextension=".pub", title="Save the public key"), "w") \
-        .write(str(e))
+        .write(encodeKeys(str(e)))
 
     # Private key
     open(fd.asksaveasfilename(initialdir="/", defaultextension=".priv", title="Save the private key"), "w") \
-        .write(str(d))
+        .write(encodeKeys(str(d)))
 
     messagebox.showinfo("Success", "The keys were successfully generated and saved")
 
@@ -74,7 +92,7 @@ def selectModule():
     module = fd.askopenfilename(initialdir="/", title="Select the module", filetypes=moduleType)
     nKey = open(module, 'r').read()
 
-    return nKey
+    return decodeKeys(nKey)
 
 
 # Function for selection the public key
@@ -83,7 +101,7 @@ def selectPublicKey():
     publicKey = fd.askopenfilename(initialdir="/", title="Select the public key", filetypes=publicKeyType)
     eKey = open(publicKey, 'r').read()
 
-    return eKey
+    return decodeKeys(eKey)
 
 
 # Function for selection the private key
@@ -92,7 +110,7 @@ def selectPrivateKey():
     privateKey = fd.askopenfilename(initialdir="/", title="Select the private key", filetypes=privateKeyType)
     dKey = open(privateKey, 'r').read()
 
-    return dKey
+    return decodeKeys(dKey)
 
 
 # Function for selection the file
@@ -249,11 +267,11 @@ def hashFunction(arg):
 
 
 # Function for base64 encode
-def base64Encode(arg):
+def base64EncodeHash(arg):
     return base64.b64encode(arg.encode('utf-8'))
 
 
-def base64Decode(arg):
+def base64DecodeHash(arg):
     hash_ = base64.b64decode(arg)
     hashDecode = hash_.decode('utf-8')
     return hashDecode
@@ -285,7 +303,7 @@ def sign():
             cipher_list.append(symbol)
 
         cipher_text = "".join(cipher_list)
-        cipher = base64Encode(cipher_text).decode('utf-8')
+        cipher = base64EncodeHash(cipher_text).decode('utf-8')
 
         finalResult = open("encrypted-hash.sign", 'w')
         try:
@@ -313,7 +331,7 @@ def verification():
                 signedFile = zipFile.open(file, 'r')
                 try:
                     hashOfFile = signedFile.read()
-                    decodedHash = base64Decode(hashOfFile)
+                    decodedHash = base64DecodeHash(hashOfFile)
                     hash2 = decryptRSA(decodedHash)
                 except UnicodeDecodeError:
                     messagebox.showerror("Error", "File verification error")
